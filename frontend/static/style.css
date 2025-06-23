@@ -1,0 +1,188 @@
+/* Basic Reset and Body Styling */
+body {
+    font-family: 'Inter', Arial, sans-serif; /* Using 'Inter' as preferred font */
+    margin: 0;
+    padding: 20px;
+    background-color: #e0f2f7; /* Light blue background */
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top */
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    box-sizing: border-box;
+}
+
+/* Main Container Styling */
+.container {
+    max-width: 900px; /* Wider container for better recipe readability */
+    width: 100%; /* Ensure it's responsive */
+    margin: 20px auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Softer, deeper shadow */
+    box-sizing: border-box;
+}
+
+/* Headings Styling */
+h1 {
+    color: #0056b3; /* Darker blue for headings */
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2.2em;
+    font-weight: 700; /* Bold */
+}
+
+h2, h3 {
+    color: #007bff; /* Primary blue for subheadings */
+    margin-top: 20px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e9ecef; /* Subtle underline */
+    padding-bottom: 5px;
+}
+
+/* Recipe Display Area */
+#recipe-display {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa; /* Light grey background for recipe content */
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* Inner shadow */
+}
+
+.recipe-details p {
+    margin: 5px 0;
+    font-size: 0.95em;
+    color: #555;
+}
+
+/* Lists Styling (Ingredients & Instructions) */
+#ingredients-list,
+#instructions-list {
+    list-style-type: none; /* Remove default bullet/number */
+    padding-left: 0;
+    margin-bottom: 20px;
+}
+
+#ingredients-list li,
+#instructions-list li {
+    background-color: #fff;
+    margin-bottom: 8px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Highlight for Current Instruction Step */
+#instructions-list li.current-step {
+    background-color: #d4edda; /* Light green for current step */
+    border-color: #28a745; /* Green border */
+    font-weight: bold;
+    transform: translateY(-2px); /* Slight lift */
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2); /* Green shadow */
+}
+
+/* Button Styling */
+#start-listening {
+    display: block; /* Make button full width */
+    width: fit-content; /* Adjust width to content */
+    margin: 25px auto 20px auto; /* Center button with margins */
+    padding: 14px 30px;
+    background-image: linear-gradient(to right, #007bff, #0056b3); /* Blue gradient */
+    color: white;
+    border: none;
+    border-radius: 30px; /* Pill-shaped button */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3); /* Blue shadow */
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+#start-listening:hover {
+    background-image: linear-gradient(to right, #0056b3, #003d80); /* Darker gradient on hover */
+    box-shadow: 0 8px 16px rgba(0, 123, 255, 0.4);
+    transform: translateY(-3px); /* More pronounced lift */
+}
+
+#start-listening:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+#start-listening:disabled {
+    background-image: linear-gradient(to right, #cccccc, #aaaaaa);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Status and Response Message Boxes */
+#status,
+#response {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1em;
+    min-height: 40px; /* Ensure some height even if empty */
+    display: flex;
+    align-items: center; /* Vertically center text */
+}
+
+#status {
+    background-color: #e2f2f7; /* Light blue */
+    border: 1px solid #b3e0ed;
+    color: #006080;
+}
+
+#response {
+    background-color: #e9f5f5; /* Even lighter blue/green */
+    border: 1px solid #c2e0e0;
+    color: #007b7b;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+    h1 {
+        font-size: 1.8em;
+    }
+    #start-listening {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 15px;
+        border-radius: 10px;
+    }
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    h2, h3 {
+        font-size: 1.1em;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+    #ingredients-list li,
+    #instructions-list li {
+        padding: 10px 12px;
+    }
+    #status, #response {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+}
