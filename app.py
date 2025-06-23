@@ -4,6 +4,7 @@ import sqlite3
 from flask import Flask, render_template, jsonify, request
 import spacy
 from openai import OpenAI
+import httpx # <--- NEW IMPORT: Needed to explicitly control the HTTP client
 
 # --- Flask App Setup ---
 app = Flask(__name__,
@@ -2063,13 +2064,17 @@ if not openai_api_key:
     print('Windows (PowerShell): $env:OPENAI_API_KEY="sk-YOUR_KEY_HERE"')
     print('macOS/Linux: export OPENAI_API_KEY="sk-YOUR_KEY_HERE"')
 
-# Explicitly initialize without http_client or proxies to avoid TypeErrors
-# This addresses the 'proxies' unexpected keyword argument issue on Render.
+# --- CRITICAL FIX: Explicitly create httpx.Client to disable environment proxy detection ---
+# This ensures that 'proxies' is not implicitly passed from environment variables,
+# which causes the TypeError on Render's specific setup.
 try:
-    client = OpenAI(api_key=openai_api_key, http_client=None)
-except TypeError as e:
-    # Fallback for older openai versions that might not accept http_client=None
-    print(f"Warning: Failed to initialize OpenAI client with http_client=None: {e}")
+    # Create a custom httpx client that does not trust environment variables for proxies.
+    custom_httpx_client = httpx.Client(trust_env=False)
+    client = OpenAI(api_key=openai_api_key, http_client=custom_httpx_client)
+except Exception as e:
+    # Fallback if the above still fails for some unforeseen reason
+    print(f"CRITICAL ERROR: Failed to initialize OpenAI client with custom httpx.Client: {e}")
+    # Attempt a basic initialization as a last resort, though it's likely to fail again
     client = OpenAI(api_key=openai_api_key)
 
 
@@ -2146,7 +2151,7 @@ def process_with_nlu(command_text, current_step_index, recipe):
         if ingredient_name and recipe and recipe['ingredients']:
             found_ingredient = next((ing for ing in recipe['ingredients'] if ingredient_name in ing['name'].lower()), None)
             if found_ingredient:
-                response_text = f"You need {found_ingredient['quantity']} {found_ingredient['unit'] or ''} of {found_ingredient['name']} for {recipe['name']}."
+                response_text = f"You need {found_ingredient['quantity']} {found_ingredient['unit'] or ''} of {found_ingredient['name']} for {recipe['name']}. "
             else:
                 response_text = f"I don't see {ingredient_name} listed in this recipe."
         else:
@@ -2213,7 +2218,7 @@ def process_with_nlu(command_text, current_step_index, recipe):
         action = "filter_recipes"
         response_text = "Showing vegetarian recipes."
         return {"response": response_text, "action": action, "category": "Vegetarian"}
-    elif intent == "show_non_vegetarian":
+    elif intent == "show non-vegetarian" in command_text or "non-vegetarian recipes" in command_text:
         action = "filter_recipes"
         response_text = "Showing non-vegetarian recipes."
         return {"response": response_text, "action": action, "category": "Non-Vegetarian"}
