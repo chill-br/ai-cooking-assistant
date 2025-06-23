@@ -4,12 +4,18 @@ import sqlite3
 from flask import Flask, render_template, jsonify, request
 import spacy
 from openai import OpenAI
-import httpx # <--- NEW IMPORT: Needed to explicitly control the HTTP client
+import httpx # Needed to explicitly control the HTTP client
 
 # --- Flask App Setup ---
+# Get the absolute path to the directory where app.py is currently located.
+# On Render, this is typically /opt/render/project/src/
+CURRENT_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__,
-            template_folder='../frontend', # Flask looks for templates here
-            static_folder='../frontend/static') # Flask looks for static files here
+            # Adjust template_folder and static_folder paths relative to CURRENT_FILE_DIR
+            # Assuming 'frontend' and 'frontend/static' are directly within the 'src' directory
+            template_folder=os.path.join(CURRENT_FILE_DIR, 'frontend'),
+            static_folder=os.path.join(CURRENT_FILE_DIR, 'frontend', 'static'))
 
 # --- Database Setup (SQLite) ---
 DATABASE = 'recipes.db'
@@ -114,7 +120,7 @@ def init_db():
                 "Wash 1.5 cups of Basmati rice and soak for 20 minutes. Drain well.",
                 "Heat 2 tablespoons of ghee or oil in a pressure cooker or heavy-bottomed pan.",
                 "Add 1 bay leaf, 2-3 green cardamom pods, 1 cinnamon stick, and 4-5 cloves. Sauté for 30 seconds.",
-                "Add 1 chopped onion and cook until golden brown.",
+                "Add 1 chopped onion and cooking until golden brown.",
                 "Stir in 1/2 cup chopped carrots, 1/2 cup green peas, and 1/4 cup chopped green beans. Sauté for 3-4 minutes.",
                 "Add the drained rice and gently mix for 1 minute.",
                 "Pour in 3 cups of water and add 1 teaspoon of salt. Stir gently.",
@@ -2064,17 +2070,17 @@ if not openai_api_key:
     print('Windows (PowerShell): $env:OPENAI_API_KEY="sk-YOUR_KEY_HERE"')
     print('macOS/Linux: export OPENAI_API_KEY="sk-YOUR_KEY_HERE"')
 
-# --- CRITICAL FIX: Explicitly create httpx.Client to disable environment proxy detection ---
-# This ensures that 'proxies' is not implicitly passed from environment variables,
-# which causes the TypeError on Render's specific setup.
+# CRITICAL FIX: Explicitly create httpx.Client to disable environment proxy detection.
+# This prevents the 'proxies' unexpected keyword argument TypeError.
 try:
     # Create a custom httpx client that does not trust environment variables for proxies.
+    # This prevents 'proxies' from being implicitly passed, which was causing the TypeError.
     custom_httpx_client = httpx.Client(trust_env=False)
     client = OpenAI(api_key=openai_api_key, http_client=custom_httpx_client)
 except Exception as e:
-    # Fallback if the above still fails for some unforeseen reason
+    # This fallback is a last resort; ideally, the above 'trust_env=False' fixes it.
     print(f"CRITICAL ERROR: Failed to initialize OpenAI client with custom httpx.Client: {e}")
-    # Attempt a basic initialization as a last resort, though it's likely to fail again
+    # Attempt a basic initialization as a last resort, though it's likely to fail again if the root cause persists.
     client = OpenAI(api_key=openai_api_key)
 
 
@@ -2151,7 +2157,7 @@ def process_with_nlu(command_text, current_step_index, recipe):
         if ingredient_name and recipe and recipe['ingredients']:
             found_ingredient = next((ing for ing in recipe['ingredients'] if ingredient_name in ing['name'].lower()), None)
             if found_ingredient:
-                response_text = f"You need {found_ingredient['quantity']} {found_ingredient['unit'] or ''} of {found_ingredient['name']} for {recipe['name']}. "
+                response_text = f"You need {found_ingredient['quantity']} {found_ingredient['unit'] or ''} of {found_ingredient['name']} for {recipe['name']}."
             else:
                 response_text = f"I don't see {ingredient_name} listed in this recipe."
         else:
