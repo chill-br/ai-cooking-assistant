@@ -743,14 +743,14 @@ def init_db():
                 "name": "Beef and Broccoli",
                 "cuisine": "Asian",
                 "category": "Non-Vegetarian",
-                "prep_time": 20,
+                "prep_time": 15,
                 "cook_time": 15,
                 "servings": 4,
                 "instructions": [
                     "Slice 1 lb flank steak thinly against the grain. Marinate in 2 tbsp soy sauce, 1 tbsp cornstarch, and 1 tbsp sesame oil for 15 minutes.",
                     "Steam or blanch 4 cups broccoli florets until tender-crisp.",
                     "Heat 1 tbsp vegetable oil in a large skillet or wok over high heat. Add beef in batches and cook until browned. Remove beef.",
-                    "In the same skillet, add 1 tbsp vegetable oil. Add 2 minced garlic cloves and 1 tsp grated ginger. Cook for 30 seconds.",
+                    "In the same skillet, add 1 tbsp more oil to the pan. Add 2 minced garlic cloves and 1 tsp grated ginger. Cook for 30 seconds.",
                     "Whisk together 1/4 cup beef broth, 2 tbsp soy sauce, 1 tbsp oyster sauce, 1 tbsp brown sugar, and 1 tsp cornstarch. Pour into skillet and bring to a simmer until slightly thickened.",
                     "Return beef and broccoli to the skillet. Toss to coat in sauce. Serve hot over rice."
                 ],
@@ -884,7 +884,7 @@ def init_db():
                 "instructions": [
                     "Pat 1.5 lb beef chuck (cut into 1-inch cubes) dry. Season with salt and pepper.",
                     "Heat 2 tbsp olive oil in a large Dutch oven or pot over medium-high heat. Brown beef in batches, then remove.",
-                    "Add 1 more tbsp oil. Add 1 chopped onion, 2 chopped carrots, and 2 chopped celery stalks. Cook for 7-10 minutes until softened.",
+                    "Add 1 more tbsp oil. Add 1 chopped onion, 2 chopped carrots, and 2 chopped celery stalks. Sauté for 7-10 minutes until softened.",
                     "Stir in 3 minced garlic cloves, 1 tsp dried thyme, and 1 bay leaf. Cook for 1 minute.",
                     "Pour in 4 cups beef broth and 1 cup red wine (optional). Scrape up any browned bits from the bottom of the pot.",
                     "Return roast to the pot. Add 1 lb small potatoes (halved) and 1 cup chopped mushrooms.",
@@ -1676,7 +1676,7 @@ def init_db():
                 "instructions": [
                     "Cook 8 oz linguine or spaghetti according to package directions. Reserve 1/2 cup pasta water. Drain.",
                     "Pat 1 lb shrimp (peeled and deveined) dry. Season with salt and pepper.",
-                    "Heat 2 tbsp olive oil and 2 tbsp butter in a large skillet over medium heat. Add 4 minced garlic cloves and cook for 1 minute until fragrant.",
+                    "Heat 2 tbsp olive oil and 2 tbsp butter in a large skillet over medium heat. Add 4 minced garlic cloves and 1 minute until fragrant.",
                     "Add shrimp and cook for 2-3 minutes per side until pink and opaque. Remove shrimp.",
                     "Add 1/4 cup dry white wine or chicken broth to the skillet. Bring to a simmer and scrape up any browned bits.",
                     "Stir in 2 tbsp lemon juice and 2 tbsp chopped fresh parsley. Return shrimp to skillet. Add drained pasta.",
@@ -2062,7 +2062,16 @@ if not openai_api_key:
     print("Please set it in your terminal before running app.py:")
     print('Windows (PowerShell): $env:OPENAI_API_KEY="sk-YOUR_KEY_HERE"')
     print('macOS/Linux: export OPENAI_API_KEY="sk-YOUR_KEY_HERE"')
-client = OpenAI(api_key=openai_api_key)
+
+# Explicitly initialize without http_client or proxies to avoid TypeErrors
+# This addresses the 'proxies' unexpected keyword argument issue on Render.
+try:
+    client = OpenAI(api_key=openai_api_key, http_client=None)
+except TypeError as e:
+    # Fallback for older openai versions that might not accept http_client=None
+    print(f"Warning: Failed to initialize OpenAI client with http_client=None: {e}")
+    client = OpenAI(api_key=openai_api_key)
+
 
 # --- NLU/NER Function (SpaCy based) ---
 def process_with_nlu(command_text, current_step_index, recipe):
